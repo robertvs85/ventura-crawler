@@ -58,6 +58,7 @@ def crawler(url, urlpattern, word, maxPages):
                 
                 pagesToVisit = pagesToVisit[1:]
                 visited_urls.append(url)
+                print(url)
 
                 if result:
                         print(numberVisited, "Visiting:", url)
@@ -75,4 +76,3 @@ def crawler(url, urlpattern, word, maxPages):
         else:
                 print("Word never found")
                 
-crawler("http://www.laliga.es/laliga-santander/barcelona", "^http\:\/\/www\.laliga\.es\/jugador\/(.+)$", "dummy", 1000)
