@@ -16,7 +16,7 @@ class LinkParser(HTMLParser):
                                 if key == 'href':
                                         newUrl = parse.urljoin(self.baseUrl, value)
                                         # Add to new links if it hasn't been visited yet
-                                        if newUrl.startswith("http") and newUrl not in self.visited_urls:
+                                        if newUrl.startswith("http") and newUrl not in self.visited_urls and newUrl not in self.links:
                                                 self.links = self.links + [newUrl]
 
         # New function, doesn't exist in HTMLParser, allows to pass extra parameters
@@ -48,7 +48,7 @@ class LinkParser(HTMLParser):
                                 return "",[]
                 except HTTPError as e:
                         print(e.code)
-                        print(e.read())
+                        #print(e.read())
                         return "",[]
                 except URLError as e:
                     if hasattr(e, 'reason'):
@@ -58,6 +58,10 @@ class LinkParser(HTMLParser):
                         print('The server couldn\'t fulfill the request.')
                         print('Error code: ', e.code)
                     return "",[]
+                except UnicodeEncodeError:
+                        return "",[]
+                except UnicodeDecodeError:
+                        return "",[]
 
 # Given a url, it tries to find the word in that url or in links from that url with a maximum of maxPages visited pages
 def crawler(url, urlpattern, word, maxPages):  
@@ -71,21 +75,20 @@ def crawler(url, urlpattern, word, maxPages):
                 while numberVisited < maxPages and pagesToVisit != [] and not foundWord:
                                 
                         url = pagesToVisit[0]
-                        result = prog.match(url)
-                        
                         pagesToVisit = pagesToVisit[1:]
                         visited_urls.append(url)
-                        print(url)
+                        print(numberVisited, "Current page:", url)
 
-                        if result:
-                                print(numberVisited, "Visiting:", url)
-                        
                         parser = LinkParser()
                         data, links = parser.getLinks(url, visited_urls)
-                        pagesToVisit = pagesToVisit + links
-                        if result and data.find(word)>-1:
-                                foundWord = True
-                                print(" **Success!**")
+                        pagesToVisit = pagesToVisit + list(set(links) - set(pagesToVisit))
+                                                
+                        result = prog.match(url)
+                        if result:
+                                print("Searching in:", url)
+                                if data.find(word)>-1:
+                                        foundWord = True
+                                        print(" **Success!**")
                         numberVisited = numberVisited + 1
                 
                 if foundWord:
@@ -93,3 +96,29 @@ def crawler(url, urlpattern, word, maxPages):
                 else:
                         print("Word never found")
                                 
+# Given a url, it tries to find pages that much urlpattern in the links from that url with a maximum of maxPages visited pages
+def crawler2(url, urlpattern, maxPages):  
+                pagesToVisit = [url]
+                found_urls = []
+                numberFound = 0
+
+                prog = re.compile(urlpattern)
+
+                while numberFound < maxPages and pagesToVisit != []:
+                                
+                        url = pagesToVisit[0]
+                        pagesToVisit = pagesToVisit[1:]
+                        
+                        #print("Visiting:", url)
+
+                        result = prog.match(url)
+                        if result and url not in found_urls:
+                                numberFound = numberFound + 1
+                                print(numberFound, "Found:", url)
+                                found_urls.append(url)  
+                        
+                        parser = LinkParser()
+                        data, links = parser.getLinks(url, found_urls)
+                        pagesToVisit = pagesToVisit + list(set(links) - set(pagesToVisit))
+                
+
