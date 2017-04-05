@@ -65,9 +65,11 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapy_test.pipelines.PlayerPipeline': 300,
-	'scrapy_test.pipelines.TeamPipeline': 200,
+    'scrapy_test.pipelines.PlayerMongoPipeline': 300,
+	'scrapy_test.pipelines.TeamMongoPipeline': 200,
 }
+MONGO_URI = 'mongodb://admin:ventura2017@ds145780.mlab.com:45780/soccer_stats'
+MONGO_DATABASE = 'soccer_stats'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
