@@ -5,7 +5,7 @@ import pymongo
 
 class PlayerPipeline(object):
 	def open_spider(self, spider):
-		self.file = open('players.jl', 'wb')
+		self.file = open('players.jl', 'w')
 
 	def close_spider(self, spider):
 		self.file.close()
@@ -18,7 +18,7 @@ class PlayerPipeline(object):
 
 class TeamPipeline(object):
 	def open_spider(self, spider):
-		self.file = open('teams.jl', 'wb')
+		self.file = open('teams.jl', 'w')
 
 	def close_spider(self, spider):
 		self.file.close()
