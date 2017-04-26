@@ -47,13 +47,13 @@ class PlayerMongoPipeline(object):
 	def open_spider(self, spider):
 		self.client = pymongo.MongoClient(self.mongo_uri)
 		self.db = self.client[self.mongo_db]
-
+ 
 	def close_spider(self, spider):
 		self.client.close()
 
 	def process_item(self, item, spider):
 		if item is not None and item['type'] == 'player':
-			self.db[self.collection_name].insert(dict(item))
+			self.db[self.collection_name].update_one({'nickname': item['nickname']}, {'$set': dict(item)}, upsert=True)
 		return item
 		
 class TeamMongoPipeline(object):
@@ -80,5 +80,5 @@ class TeamMongoPipeline(object):
 
 	def process_item(self, item, spider):
 		if item is not None and item['type'] == 'team':
-			self.db[self.collection_name].insert(dict(item))
+			self.db[self.collection_name].update_one({'name': item['name']}, {'$set': dict(item)}, upsert=True)
 		return item
