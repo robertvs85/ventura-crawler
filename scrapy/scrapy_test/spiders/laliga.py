@@ -23,17 +23,44 @@ class LaLigaSpider(CrawlSpider):
 		'Nacionalidad': 'nationality',
 		u'Posici\xf3n': 'position'
 	}
+	team_stats_mapping = {
+		u'A\xf1o fundaci\xf3n': 'foundation_year',
+		'Presidente': 'president',
+		'E-mail': 'email',
+		'Temporadas en LaLiga Santander': 'seasons_in_1st_division',
+		'Temporadas en LaLiga 1|2|3': 'seasons_in_2nd_division',
+		u'N\xfam de socios': 'number_of_members',
+		u'N\xfam de abonados': 'number_of_subscribers',
+		'Firma deportiva': 'sports_firm',
+		'Estadio': 'stadium',
+		'Dimensiones Estadio': 'stadium_dimensions',
+		'Aforo': 'capacity'
+	}
 	
 	def __init__(self, *a, **kw):
 		super(LaLigaSpider, self).__init__(*a, **kw)
 
 	def parse_team(self, response):
 		team = response.css('#box-equipo .titulo::text').extract_first()
-		if team is not None:
-			yield {
-				'type': 'team',
-				'name': team
+		
+		team_stats = response.css('#sidebar-ficha-equipo > section.box.box-datos-sidebar > div.box-datos > div.box-dato')
+		
+		team_data = {
+			'type': 'team',
+			'name': team,
+			'team_stats': {
+				
 			}
+		}
+		
+		for value in team_stats:
+			header = value.css('.nombre::text').extract_first()
+			key = self.team_stats_mapping.get(header, None)
+			if key is not None:
+				team_data['team_stats'][key] = value.css('.dato::text').extract_first()		
+		
+		if team is not None:
+			yield team_data
 		
 	def parse_player(self, response):
 		team = response.css('.cabecera-seccion .titulo::text').extract_first()
