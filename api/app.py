@@ -4,9 +4,15 @@ import tornado.httpclient
 import tornado.escape
 import motor
 import json
+from tornado.gen import coroutine
+from react.render import render_component
+import os
 
 class TeamsHandler(tornado.web.RequestHandler):
-   
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE")
+        self.set_header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
     def initialize(self, mongo_db):
        self.mongo_db = mongo_db
     
@@ -22,6 +28,11 @@ class TeamsHandler(tornado.web.RequestHandler):
         }
         self.write(result)
         
+    def options(self):
+        # no body
+        self.set_status(204)
+        self.finish()
+        
 class PlayersHandler(tornado.web.RequestHandler):
    
     def initialize(self, mongo_db):
@@ -34,7 +45,7 @@ class PlayersHandler(tornado.web.RequestHandler):
         players = []
         while (yield cursor.fetch_next):
             document = cursor.next_object()
-            players.append(document[field])
+            players.append(document[field] if len(field) > 0 else document)
         result = {
             'players': players
         }
@@ -48,13 +59,24 @@ class SinglePlayerHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, player):
         document = yield mongo_db.players.find_one({'nickname':player},{'_id': 0})
-        self.write(document)        
+        self.write(document)
         
+class IndexHandler(tornado.web.RequestHandler):
+    @coroutine
+    def get(self):
+        rendered = render_component(
+        os.path.join(os.getcwd(), 'webapp', 'laliga.jsx'),
+        {},
+        to_static_markup=False,
+        )
+        self.render('webapp/index.html', rendered=rendered)
+
 def make_app(mongo_db):
     return tornado.web.Application([
+        (r"/", IndexHandler),
         (r"/teams", TeamsHandler, dict(mongo_db=mongo_db)),
         (r"/players/(.*)/(.*)", PlayersHandler, dict(mongo_db=mongo_db)),
-        (r"/player/(.*)", SinglePlayerHandler, dict(mongo_db=mongo_db)),
+        (r"/player/(.*)", SinglePlayerHandler, dict(mongo_db=mongo_db))
     ])
 
 if __name__ == "__main__":
