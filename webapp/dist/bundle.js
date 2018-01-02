@@ -23387,7 +23387,7 @@
 
 	    _get(Object.getPrototypeOf(AppRoot.prototype), 'constructor', this).call(this, props);
 
-	    this.props.state = {
+	    this.state = {
 	      teams: []
 	    };
 	  }
@@ -23415,21 +23415,21 @@
 	    value: function componentDidMount() {
 	      var _this = this;
 
-	      var config = {
-	        headers: {
-	          'Access-Control-Allow-Methods': 'GET,PUT,PATCH,POST,DELETE',
-	          'Access-Control-Allow-Origin': '*',
-	          'Content-Type': 'application/json'
-	        }
-	      };
 	      (0, _axios2['default'])({
-	        url: 'http://localhost:8888/teams',
-	        headers: { "Access-Control-Allow-Origin": "*" },
+	        url: '/soccer_api/teams',
 	        method: 'GET'
 	      }).then(function (res) {
-	        console.log("HELLOOOOO");
-	        var teams = res.teams;
-	        _this.setState({ teams: teams });
+	        var teams = res.data.teams;
+
+	        function compare(a, b) {
+	          if (a.name < b.name) return -1;
+	          if (a.name > b.name) return 1;
+	          return 0;
+	        }
+
+	        teams.sort(compare);
+
+	        _this.setState({ 'teams': teams });
 	      });
 	    }
 
@@ -23448,7 +23448,7 @@
 	          null,
 	          _configApp2['default'].title
 	        ),
-	        _reactAddons2['default'].createElement(_TeamList2['default'], { teams: this.props.state.teams })
+	        _reactAddons2['default'].createElement(_TeamList2['default'], { teams: this.state.teams })
 	      );
 	    }
 	  }]);

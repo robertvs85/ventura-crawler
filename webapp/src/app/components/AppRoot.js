@@ -13,7 +13,7 @@ class AppRoot extends React.Component {
   constructor(props) {
     super(props);
 
-    this.props.state = {
+    this.state = {
       teams: []
     };
   }
@@ -33,22 +33,24 @@ class AppRoot extends React.Component {
   }
 
   componentDidMount() {
-  	var config = {
-	  headers: {
-	  	'Access-Control-Allow-Methods': 'GET,PUT,PATCH,POST,DELETE',
-	  	'Access-Control-Allow-Origin': '*',
-	  	'Content-Type': 'application/json'
-	  }
-	};
     axios({
-    	url: `http://localhost:8888/teams`,
-    	headers: {"Access-Control-Allow-Origin": "*"},
+    	url: `/soccer_api/teams`,
     	method: 'GET'
     })
       .then(res => {
-      	console.log("HELLOOOOO")
-        const teams = res.teams;
-        this.setState({ teams });
+        var teams = res.data.teams;
+
+        function compare(a,b) {
+          if (a.name < b.name)
+            return -1;
+          if (a.name > b.name)
+            return 1;
+          return 0;
+        }
+
+        teams.sort(compare);
+
+        this.setState({'teams':teams});
       });
   }
 
@@ -59,7 +61,7 @@ class AppRoot extends React.Component {
   render () {
     return <div className="appRoot">
       <h1>{config.title}</h1>
-      <TeamList teams={this.props.state.teams} />
+      <TeamList teams={this.state.teams} />
     </div>;
   }
 }

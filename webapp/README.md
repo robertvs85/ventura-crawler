@@ -37,3 +37,22 @@ Run:
 ## Preview
 
 ![screen shot 2015-04-11 at 11 48 41](https://cloud.githubusercontent.com/assets/1764512/7101012/cf4334fc-e040-11e4-9f28-aed24d68e46a.png)
+
+## How to set up
+Apache httpd.conf:
+
+<Location /soccer_api/>
+ProxyPass http://localhost:8888/ retry=0
+ProxyPassReverse http://localhost:8888/
+</Location>
+
+<Location /soccer_webapp/>
+ProxyPass http://localhost:3000/ retry=0
+ProxyPassReverse http://localhost:3000/
+</Location>
+
+Configure hosts (/etc/hosts): 
+127.0.0.1       ventura_app.com
+
+Access:
+http://ventura_app.com/soccer_webapp/
