@@ -23370,7 +23370,11 @@
 
 	var _TeamList2 = _interopRequireDefault(_TeamList);
 
-	var _configApp = __webpack_require__(208);
+	var _PlayerList = __webpack_require__(208);
+
+	var _PlayerList2 = _interopRequireDefault(_PlayerList);
+
+	var _configApp = __webpack_require__(209);
 
 	var _configApp2 = _interopRequireDefault(_configApp);
 
@@ -23388,8 +23392,11 @@
 	    _get(Object.getPrototypeOf(AppRoot.prototype), 'constructor', this).call(this, props);
 
 	    this.state = {
-	      teams: []
+	      teams: [],
+	      players: []
 	    };
+
+	    this.showPlayers = this.showPlayers.bind(this);
 	  }
 
 	  // Prop types validation
@@ -23411,9 +23418,34 @@
 	      return _reactAddons2['default'].addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
 	    }
 	  }, {
+	    key: 'showPlayers',
+	    value: function showPlayers(team) {
+	      var _this = this;
+
+	      (0, _axios2['default'])({
+	        url: '/soccer_api/players/' + team + '/',
+	        method: 'GET'
+	      }).then(function (res) {
+	        var players = res.data.players;
+
+	        function compare(a, b) {
+	          if (isNaN(a.number) || a.number == null) return -1;
+	          if (isNaN(b.number) || b.number == null) return 1;
+
+	          if (parseInt(a.number) < parseInt(b.number)) return -1;
+	          if (parseInt(a.number) > parseInt(b.number)) return 1;
+	          return 0;
+	        }
+
+	        players.sort(compare);
+
+	        _this.setState({ 'players': players });
+	      });
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      (0, _axios2['default'])({
 	        url: '/soccer_api/teams',
@@ -23429,7 +23461,7 @@
 
 	        teams.sort(compare);
 
-	        _this.setState({ 'teams': teams });
+	        _this2.setState({ 'teams': teams });
 	      });
 	    }
 
@@ -23445,10 +23477,11 @@
 	        { className: 'appRoot' },
 	        _reactAddons2['default'].createElement(
 	          'h1',
-	          null,
+	          { 'class': 'header' },
 	          _configApp2['default'].title
 	        ),
-	        _reactAddons2['default'].createElement(_TeamList2['default'], { teams: this.state.teams })
+	        _reactAddons2['default'].createElement(_TeamList2['default'], { showPlayers: this.showPlayers, teams: this.state.teams }),
+	        _reactAddons2['default'].createElement(_PlayerList2['default'], { players: this.state.players })
 	      );
 	    }
 	  }]);
@@ -25037,7 +25070,7 @@
 	var _Team2 = _interopRequireDefault(_Team);
 
 	/*
-	 * @class Team
+	 * @class TeamList
 	 * @extends React.Component
 	 */
 
@@ -25062,6 +25095,11 @@
 	    value: function shouldComponentUpdate() {
 	      return _reactAddons2['default'].addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
 	    }
+	  }, {
+	    key: 'showPlayers',
+	    value: function showPlayers(team) {
+	      this.props.showPlayers(team);
+	    }
 
 	    /*
 	     * @method render
@@ -25070,14 +25108,15 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var that = this;
 	      return _reactAddons2['default'].createElement(
 	        'div',
-	        { className: 'cart' },
+	        { className: 'team_list column' },
 	        _reactAddons2['default'].createElement(
 	          'table',
 	          null,
 	          this.props.teams.map(function (item, key) {
-	            return _reactAddons2['default'].createElement(_Team2['default'], { key: key, team: item });
+	            return _reactAddons2['default'].createElement(_Team2['default'], { showPlayers: that.showPlayers.bind(that), key: key, team: item });
 	          })
 	        )
 	      );
@@ -25119,7 +25158,7 @@
 	var _reactAddons2 = _interopRequireDefault(_reactAddons);
 
 	/*
-	 * @class Item
+	 * @class Team
 	 * @extends React.Component
 	 */
 
@@ -25144,6 +25183,11 @@
 	    value: function shouldComponentUpdate() {
 	      return _reactAddons2["default"].addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
 	    }
+	  }, {
+	    key: "showPlayers",
+	    value: function showPlayers() {
+	      this.props.showPlayers(this.props.team.name);
+	    }
 
 	    /*
 	     * @method render
@@ -25158,7 +25202,13 @@
 	        _reactAddons2["default"].createElement(
 	          "td",
 	          null,
-	          this.props.team.name
+	          this.props.team.name,
+	          " ",
+	          _reactAddons2["default"].createElement(
+	            "button",
+	            { onClick: this.showPlayers.bind(this) },
+	            "See players"
+	          )
 	        )
 	      );
 	    }
@@ -25176,6 +25226,93 @@
 
 /***/ }),
 /* 208 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _reactAddons = __webpack_require__(7);
+
+	var _reactAddons2 = _interopRequireDefault(_reactAddons);
+
+	var _Player = __webpack_require__(210);
+
+	var _Player2 = _interopRequireDefault(_Player);
+
+	/*
+	 * @class PlayerList
+	 * @extends React.Component
+	 */
+
+	var PlayerList = (function (_React$Component) {
+	  _inherits(PlayerList, _React$Component);
+
+	  function PlayerList() {
+	    _classCallCheck(this, PlayerList);
+
+	    _get(Object.getPrototypeOf(PlayerList.prototype), 'constructor', this).apply(this, arguments);
+	  }
+
+	  // Prop types validation
+
+	  _createClass(PlayerList, [{
+	    key: 'shouldComponentUpdate',
+
+	    /*
+	     * @method shouldComponentUpdate
+	     * @returns {Boolean}
+	     */
+	    value: function shouldComponentUpdate() {
+	      return _reactAddons2['default'].addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
+	    }
+
+	    /*
+	     * @method render
+	     * @returns {JSX}
+	     */
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var that = this;
+	      return _reactAddons2['default'].createElement(
+	        'div',
+	        { className: 'player_list column' },
+	        _reactAddons2['default'].createElement(
+	          'ul',
+	          null,
+	          this.props.players.map(function (item, key) {
+	            return _reactAddons2['default'].createElement(_Player2['default'], { key: key, player: item });
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return PlayerList;
+	})(_reactAddons2['default'].Component);
+
+	PlayerList.propTypes = {
+	  players: _reactAddons2['default'].PropTypes.object.isRequired
+	};
+
+	exports['default'] = PlayerList;
+	module.exports = exports['default'];
+
+/***/ }),
+/* 209 */
 /***/ (function(module, exports) {
 
 	var config = {};
@@ -25184,6 +25321,100 @@
 
 	module.exports = config;
 
+
+/***/ }),
+/* 210 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _reactAddons = __webpack_require__(7);
+
+	var _reactAddons2 = _interopRequireDefault(_reactAddons);
+
+	/*
+	 * @class Player
+	 * @extends React.Component
+	 */
+
+	var Player = (function (_React$Component) {
+	  _inherits(Player, _React$Component);
+
+	  function Player() {
+	    _classCallCheck(this, Player);
+
+	    _get(Object.getPrototypeOf(Player.prototype), "constructor", this).apply(this, arguments);
+	  }
+
+	  // Prop types validation
+
+	  _createClass(Player, [{
+	    key: "shouldComponentUpdate",
+
+	    /*
+	     * @method shouldComponentUpdate
+	     * @returns {Boolean}
+	     */
+	    value: function shouldComponentUpdate() {
+	      return _reactAddons2["default"].addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
+	    }
+
+	    /*
+	     * @method render
+	     * @returns {JSX}
+	     */
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      return _reactAddons2["default"].createElement(
+	        "li",
+	        { className: "player_item" },
+	        _reactAddons2["default"].createElement(
+	          "span",
+	          { className: "player_nickname" },
+	          this.props.player.nickname
+	        ),
+	        " -",
+	        _reactAddons2["default"].createElement(
+	          "span",
+	          { className: "player_number" },
+	          " ",
+	          this.props.player.number
+	        ),
+	        " -",
+	        _reactAddons2["default"].createElement(
+	          "span",
+	          { className: "player_fullname" },
+	          " ",
+	          this.props.player.full_name
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Player;
+	})(_reactAddons2["default"].Component);
+
+	Player.propTypes = {
+	  player: _reactAddons2["default"].PropTypes.object.isRequired
+	};
+
+	exports["default"] = Player;
+	module.exports = exports["default"];
 
 /***/ })
 /******/ ]);

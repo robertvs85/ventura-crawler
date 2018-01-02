@@ -2,7 +2,7 @@ import React from 'react/addons';
 import Team from './Team';
 
 /*
- * @class Team
+ * @class TeamList
  * @extends React.Component
  */
 class TeamList extends React.Component {
@@ -15,15 +15,20 @@ class TeamList extends React.Component {
     return React.addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
   }
 
+  showPlayers(team) {
+  	this.props.showPlayers(team);
+  }
+
   /*
    * @method render
    * @returns {JSX}
    */
   render () {
-    return <div className="cart">
+  	var that = this;
+    return <div className="team_list column">
       <table>
         {this.props.teams.map(function (item, key) {
-          return <Team key={key} team={item} />;
+          return <Team showPlayers={that.showPlayers.bind(that)} key={key} team={item} />;
         })}
       </table>
     </div>;

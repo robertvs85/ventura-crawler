@@ -1,6 +1,7 @@
 import React from 'react/addons';
 import axios from 'axios';
 import TeamList from './TeamList';
+import PlayerList from './PlayerList';
 
 import config from '../../../config/app';
 
@@ -14,8 +15,11 @@ class AppRoot extends React.Component {
     super(props);
 
     this.state = {
-      teams: []
+      teams: [],
+      players: []
     };
+
+    this.showPlayers = this.showPlayers.bind(this);
   }
 
   /*
@@ -30,6 +34,33 @@ class AppRoot extends React.Component {
    */
   shouldComponentUpdate () {
     return React.addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
+  }
+
+  showPlayers(team) {
+  	axios({
+    	url: `/soccer_api/players/` + team + `/`,
+    	method: 'GET'
+    })
+      .then(res => {
+        var players = res.data.players;
+
+        function compare(a,b) {
+          if (isNaN(a.number) || a.number == null)
+            return -1
+          if (isNaN(b.number) || b.number == null)
+            return 1
+
+          if (parseInt(a.number) < parseInt(b.number))
+            return -1;
+          if (parseInt(a.number) > parseInt(b.number))
+            return 1;
+          return 0;
+        }
+
+        players.sort(compare);
+
+        this.setState({'players':players});
+      });
   }
 
   componentDidMount() {
@@ -60,8 +91,9 @@ class AppRoot extends React.Component {
    */
   render () {
     return <div className="appRoot">
-      <h1>{config.title}</h1>
-      <TeamList teams={this.state.teams} />
+      <h1 class="header">{config.title}</h1>
+      <TeamList showPlayers={this.showPlayers} teams={this.state.teams} />
+      <PlayerList players={this.state.players} />
     </div>;
   }
 }

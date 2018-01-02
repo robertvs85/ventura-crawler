@@ -1,7 +1,7 @@
 import React from 'react/addons';
 
 /*
- * @class Item
+ * @class Team
  * @extends React.Component
  */
 class Team extends React.Component {
@@ -14,12 +14,16 @@ class Team extends React.Component {
     return React.addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
   }
 
+  showPlayers () {
+    this.props.showPlayers(this.props.team.name);
+  }
+
   /*
    * @method render
    * @returns {JSX}
    */
   render () {
-    return <tr className="item"><td>{this.props.team.name}</td></tr>;
+    return <tr className="item"><td>{this.props.team.name} <button onClick={this.showPlayers.bind(this)}>See players</button></td></tr>;
   }
 }
 
