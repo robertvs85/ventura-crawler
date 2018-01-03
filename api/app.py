@@ -33,6 +33,25 @@ class TeamsHandler(tornado.web.RequestHandler):
         self.set_status(204)
         self.finish()
         
+ 
+class AllPlayersHandler(tornado.web.RequestHandler):
+   
+    def initialize(self, mongo_db):
+       self.mongo_db = mongo_db
+    
+    @tornado.gen.coroutine
+    def get(self):
+        sort_by = self.get_argument('sort_by', 'number')
+        cursor = mongo_db.players.find({},{'_id': 0}).sort([(sort_by, 1)])
+        players = []
+        while (yield cursor.fetch_next):
+            document = cursor.next_object()
+            players.append(document)
+        result = {
+            'players': players
+        }
+        self.write(result)
+
 class PlayersHandler(tornado.web.RequestHandler):
    
     def initialize(self, mongo_db):
@@ -41,7 +60,8 @@ class PlayersHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, team, field):
         self.field_to_show = field
-        cursor = mongo_db.players.find({'team':team},{'_id': 0})
+        sort_by = self.get_argument('sort_by', 'number')
+        cursor = mongo_db.players.find({'team':team},{'_id': 0}).sort([(sort_by, 1)])
         players = []
         while (yield cursor.fetch_next):
             document = cursor.next_object()
@@ -75,6 +95,7 @@ def make_app(mongo_db):
     return tornado.web.Application([
         (r"/", IndexHandler),
         (r"/teams", TeamsHandler, dict(mongo_db=mongo_db)),
+        (r"/players", AllPlayersHandler, dict(mongo_db=mongo_db)),
         (r"/players/(.*)/(.*)", PlayersHandler, dict(mongo_db=mongo_db)),
         (r"/player/(.*)", SinglePlayerHandler, dict(mongo_db=mongo_db))
     ])

@@ -8,7 +8,7 @@ from scrapy.linkextractors import LinkExtractor
 class LaLigaSpider(CrawlSpider):
 	name = "la_liga"
 	start_urls = [
-		'http://www.laliga.es/laliga-santander',
+		'http://www.laliga.es/laliga-santander/barcelona',
 	]
 	allowed_domains = ['www.laliga.es']
 	rules = (
@@ -43,7 +43,7 @@ class LaLigaSpider(CrawlSpider):
 	def parse_team(self, response):
 		team = response.css('#box-equipo .titulo::text').extract_first()
 		
-		team_stats = response.css('#sidebar-ficha-equipo > section.box.box-datos-sidebar > div.box-datos > div.box-dato')
+		team_stats = response.css('.box-datos-sidebar')
 		
 		team_data = {
 			'type': 'team',
@@ -53,11 +53,12 @@ class LaLigaSpider(CrawlSpider):
 			}
 		}
 		
-		for value in team_stats:
-			header = value.css('.nombre::text').extract_first()
-			key = self.team_stats_mapping.get(header, None)
-			if key is not None:
-				team_data['team_stats'][key] = value.css('.dato::text').extract_first()		
+		nombre = None
+		
+		for stat in team_stats.css('.box-dato'):
+			key = stat.css('.nombre::text').extract_first()
+			value = stat.css('.dato::text').extract_first()
+			team_data['team_stats'][key] = value
 		
 		if team is not None:
 			yield team_data
@@ -73,26 +74,32 @@ class LaLigaSpider(CrawlSpider):
 			'team': team,
 			'nickname': profile.css('#nickname::text').extract_first(),
 			'full_name': profile.css('#nombre::text').extract_first(),
-			'number': profile.css('#dorsal::text').extract_first(),
-			'personal_stats': {
-				
-			},
-			'football_stats': {
-				'recoveries': football_stats.css('#estadisticas-defensa .valor::text').extract_first(),
-				'passes': football_stats.css('#estadisticas-contruccion .valor::text').extract_first(),
-				'shots': football_stats.css('#estadisticas-ataque .valor::text').extract_first(),
-				'goals': football_stats.css('#estadisticas-goles .valor::text').extract_first(),
-				'yellow_cards': football_stats.css('#estadisticas-disciplina .tarjetas-amarillas .valor::text').extract_first(),
-				'red_cards': football_stats.css('#estadisticas-disciplina .tarjetas-rojas .valor::text').extract_first(),
-				'minutes': response.css('#datos-jugador-der .destacado::text').extract_first()
-			} 
+			'number': int(profile.css('#dorsal::text').extract_first()) if profile.css('#dorsal::text').extract_first() is not None else None,
+			'position': profile.css('#posicion::text').extract_first(),
+			'birth_date': profile.css('#fecha_nacimiento::text').extract_first().replace('Fecha nacimiento: ','') if profile.css('#fecha_nacimiento::text').extract_first() is not None else None,
+			'city': profile.css('#lugar_nacimiento::text').extract_first().replace('Lugar de nacimiento: ','') if profile.css('#lugar_nacimiento::text').extract_first() is not None else None,
+			'nationality': profile.css('#nacionalidad::text').extract_first().replace('Nacionalidad: ','') if profile.css('#nacionalidad::text').extract_first() is not None else None,
+			'football_stats': {} 
 		}
 		
-		for value in personal_stats:
-			header = value.css('h2::text').extract_first()
-			key = self.personal_stats_mapping.get(header, None)
-			if key is not None:
-				player_data['personal_stats'][key] = value.css('.dato::text').extract_first()
+		for stat in personal_stats.css('.box-dato'):
+			key = stat.css('.nombre::text').extract_first()
+			value = stat.css('.dato::text').extract_first()
+			player_data[key] = value
+		
+		i = 0
+		for stat in response.css('.estadisticas_jugador_tabla tr'):
+			if i % 2 == 0:
+				columns = []
+			j = 0
+			for col in stat.css('td .estadisticas_jugador_dato::text').extract():
+				if i % 2 == 0:
+					columns.append(col)
+				else:
+					player_data['football_stats'][columns[j]] = int(col) if col.isdigit() else col
+				j += 1
+
+			i += 1
 		
 		yield player_data
 		

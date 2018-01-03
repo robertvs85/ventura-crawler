@@ -2,6 +2,8 @@ import React from 'react/addons';
 import axios from 'axios';
 import TeamList from './TeamList';
 import PlayerList from './PlayerList';
+import Grid from 'react-bootstrap/lib/Grid';
+import Row from 'react-bootstrap/lib/Row';
 
 import config from '../../../config/app';
 
@@ -43,22 +45,6 @@ class AppRoot extends React.Component {
     })
       .then(res => {
         var players = res.data.players;
-
-        function compare(a,b) {
-          if (isNaN(a.number) || a.number == null)
-            return -1
-          if (isNaN(b.number) || b.number == null)
-            return 1
-
-          if (parseInt(a.number) < parseInt(b.number))
-            return -1;
-          if (parseInt(a.number) > parseInt(b.number))
-            return 1;
-          return 0;
-        }
-
-        players.sort(compare);
-
         this.setState({'players':players});
       });
   }
@@ -90,11 +76,13 @@ class AppRoot extends React.Component {
    * @returns {JSX}
    */
   render () {
-    return <div className="appRoot">
-      <h1 class="header">{config.title}</h1>
-      <TeamList showPlayers={this.showPlayers} teams={this.state.teams} />
-      <PlayerList players={this.state.players} />
-    </div>;
+    return <Grid className="appRoot">
+        <h1 className="header text-primary">{config.title}</h1>
+        <Row>
+          <TeamList showPlayers={this.showPlayers} teams={this.state.teams} />
+          <PlayerList players={this.state.players} />
+        </Row>
+    </Grid>;
   }
 }
 

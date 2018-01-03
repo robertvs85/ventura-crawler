@@ -1,5 +1,6 @@
 import React from 'react/addons';
 import Team from './Team';
+import Col from 'react-bootstrap/lib/Col';
 
 /*
  * @class TeamList
@@ -7,15 +8,17 @@ import Team from './Team';
  */
 class TeamList extends React.Component {
 
-  /*
-   * @method shouldComponentUpdate
-   * @returns {Boolean}
-   */
-  shouldComponentUpdate () {
-    return React.addons.PureRenderMixin.shouldComponentUpdate.apply(this, arguments);
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: null,
+    };
   }
 
+
   showPlayers(team) {
+    this.state.selected = team;
+    this.setState(this.state)
   	this.props.showPlayers(team);
   }
 
@@ -25,13 +28,15 @@ class TeamList extends React.Component {
    */
   render () {
   	var that = this;
-    return <div className="team_list column">
-      <table>
+    return <Col sm={2} className="team_list" >
+      <h2 className="text-info">Teams</h2>
+      <div className="list-group">
         {this.props.teams.map(function (item, key) {
-          return <Team showPlayers={that.showPlayers.bind(that)} key={key} team={item} />;
+          return <Team showPlayers={that.showPlayers.bind(that)} team={item}
+            active={that.state.selected == item.name? true: false}/>;
         })}
-      </table>
-    </div>;
+      </div>
+    </Col>;
   }
 }
 

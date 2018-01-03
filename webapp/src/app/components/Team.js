@@ -6,6 +6,10 @@ import React from 'react/addons';
  */
 class Team extends React.Component {
 
+  constructor(props) {
+    super(props);
+  }
+
   /*
    * @method shouldComponentUpdate
    * @returns {Boolean}
@@ -23,7 +27,7 @@ class Team extends React.Component {
    * @returns {JSX}
    */
   render () {
-    return <tr className="item"><td>{this.props.team.name} <button onClick={this.showPlayers.bind(this)}>See players</button></td></tr>;
+    return <a className={this.props.active ? 'active list-group-item': 'list-group-item'} onClick={this.showPlayers.bind(this)}>{this.props.team.name}</a>;
   }
 }
 

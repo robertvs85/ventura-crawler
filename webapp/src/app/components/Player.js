@@ -19,10 +19,12 @@ class Player extends React.Component {
    * @returns {JSX}
    */
   render () {
-    return <li className="player_item">
-      <span className="player_nickname">{this.props.player.nickname}</span> -
-      <span className="player_number"> {this.props.player.number}</span> -
-      <span className="player_fullname"> {this.props.player.full_name}</span></li>;
+    var that = this;
+    return <tr className="detailed_player_item">
+      {this.props.columns.map(function (item, key) {
+        return <td>{that.props.player[item]?that.props.player[item]:that.props.player.football_stats[item]}</td>;
+      })}
+      </tr>;
   }
 }
 
