@@ -3,3 +3,4 @@ scrapy/scrapy_test/__pycache__/
 scrapy/scrapy_test/spiders/__pycache__/
 scrapy/*.jl
 */*.pyc
+/webapp/node_modules/
