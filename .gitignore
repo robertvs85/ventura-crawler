@@ -4,3 +4,10 @@ scrapy/scrapy_test/spiders/__pycache__/
 scrapy/*.jl
 */*.pyc
 /webapp/node_modules/
+/scrapy/.vs/scrapy/v15/
+/scrapy/scrapy/.ptvs/
+/scrapy/scrapy/Include/
+/scrapy/scrapy/Lib/
+/scrapy/scrapy/pip-selfcheck.json
+/scrapy/scrapy/Scripts/
+/scrapy/scrapy/tcl/
