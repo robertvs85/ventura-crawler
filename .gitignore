@@ -11,3 +11,5 @@ scrapy/*.jl
 /scrapy/scrapy/pip-selfcheck.json
 /scrapy/scrapy/Scripts/
 /scrapy/scrapy/tcl/
+*.suo
+/api/ventura-crawler-api/
