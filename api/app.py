@@ -80,20 +80,9 @@ class SinglePlayerHandler(tornado.web.RequestHandler):
     def get(self, player):
         document = yield mongo_db.players.find_one({'nickname':player},{'_id': 0})
         self.write(document)
-        
-class IndexHandler(tornado.web.RequestHandler):
-    @coroutine
-    def get(self):
-        rendered = render_component(
-        os.path.join(os.getcwd(), 'webapp', 'laliga.jsx'),
-        {},
-        to_static_markup=False,
-        )
-        self.render('webapp/index.html', rendered=rendered)
 
 def make_app(mongo_db):
     return tornado.web.Application([
-        (r"/", IndexHandler),
         (r"/teams", TeamsHandler, dict(mongo_db=mongo_db)),
         (r"/players", AllPlayersHandler, dict(mongo_db=mongo_db)),
         (r"/players/(.*)/(.*)", PlayersHandler, dict(mongo_db=mongo_db)),
