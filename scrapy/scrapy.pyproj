@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{bf1eb6f6-ddcd-40d9-a651-1147cee9b7c6}</ProjectGuid>
     <ProjectHome />
-    <StartupFile />
+    <StartupFile>scrapy_test\runner.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -35,6 +35,9 @@
     <Compile Include="scrapy_test\pipelines.py" />
     <Compile Include="scrapy_test\settings.py" />
     <Compile Include="scrapy_test\spiders\laliga.py" />
+    <Compile Include="scrapy_test\runner.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="scrapy_test\spiders\__init__.py" />
     <Compile Include="scrapy_test\__init__.py" />
   </ItemGroup>
